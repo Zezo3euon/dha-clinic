@@ -1,0 +1,43 @@
+services:
+  dha-db:
+    image: postgres:16-alpine
+    container_name: dha_clinic_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dha_admin
+      POSTGRES_PASSWORD: dha_secure_pass_2026
+      POSTGRES_DB: dha_clinic
+    ports:
+      - "5435:5432"
+    volumes:
+      - dha_pgdata:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dha_admin -d dha_clinic"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+
+  dha-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dha_clinic_app
+    restart: unless-stopped
+    ports:
+      - "5050:5050"
+    environment:
+      PORT: 5050
+      DB_HOST: dha-db
+      DB_PORT: 5432
+      DB_USER: dha_admin
+      DB_PASSWORD: dha_secure_pass_2026
+      DB_NAME: dha_clinic
+      NODE_ENV: production
+    depends_on:
+      dha-db:
+        condition: service_healthy
+
+volumes:
+  dha_pgdata:
+    name: dha_clinic_pgdata

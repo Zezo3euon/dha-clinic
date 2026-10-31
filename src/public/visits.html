@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عيادة الدكتور حاتم عواجة | نظام إدارة العيادة والنساء والتوليد</title>
+  
+  <!-- Modern Google Fonts: Cairo & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for Medical & Actions -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout" id="appLayout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-baby"></i>
+        </div>
+        <div class="brand-info">
+          <h2>د. حاتم عواجة</h2>
+          <span>استشاري نساء وتوليد وعقم</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="/" class="nav-item " data-view="dashboard" id="navDashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>الرئيسية والإحصائيات</span>
+        </a>
+        <a href="/patients" class="nav-item " data-view="patients" id="navPatients">
+          <i class="fa-solid fa-hospital-user"></i>
+          <span>سجل المريضات</span>
+        </a>
+        <a href="/appointments" class="nav-item " data-view="appointments" id="navAppointments">
+          <i class="fa-regular fa-calendar-check"></i>
+          <span>الحجوزات وقائمة الانتظار</span>
+        </a>
+        <a href="/visits" class="nav-item active" data-view="visits" id="navVisits">
+          <i class="fa-solid fa-stethoscope"></i>
+          <span>الكشوفات والتشخيصات</span>
+        </a>
+        <a href="/prescriptions" class="nav-item " data-view="prescriptions" id="navPrescriptions">
+          <i class="fa-solid fa-prescription"></i>
+          <span>الروشتات الطبية</span>
+        </a>
+        <a href="/calculator" class="nav-item " data-view="calculator" id="navCalculator">
+          <i class="fa-solid fa-calculator"></i>
+          <span>حاسبة الحمل والولادة</span>
+        </a>
+        <a href="/backups" class="nav-item " data-view="backups" id="navBackups">
+          <i class="fa-solid fa-database"></i>
+          <span>النسخ الاحتياطي</span>
+        </a>
+      </nav>
+
+      <!-- Database Status Badge -->
+      <div class="sidebar-footer">
+        <div class="db-status-pill" id="dbStatusPill">
+          <span class="status-indicator live"></span>
+          <div class="status-meta">
+            <small>حالة قاعدة البيانات</small>
+            <strong id="dbStatusText">جاري الاتصال...</strong>
+          </div>
+        </div>
+        <div class="doctor-badge">
+          <div class="avatar-doc">
+            <i class="fa-solid fa-user-doctor"></i>
+          </div>
+          <div class="doc-meta">
+            <h4>د. حاتم عواجة</h4>
+            <p>العيادة مفتوحة اليوم</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Top Navigation Bar -->
+      <header class="app-topbar">
+        <div class="topbar-right">
+          <button class="btn-toggle-sidebar" id="btnToggleSidebar" title="تبديل القائمة">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="page-title-box">
+            <h1 id="pageTitle">الكشوفات والتشخيصات</h1>
+            <p id="pageSubtitle">تسجيل الفحوصات الإكلينيكية والسونار والتشخيص بالتوقيتات والتواريخ</p>
+          </div>
+        </div>
+
+        <!-- Global Real-Time Search -->
+        <div class="global-search-container" id="globalSearchContainer">
+          <div class="global-search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearchInput" placeholder="بحث سريع في كل النظام (اسم، هاتف، كود، تشخيص، دواء)..." autocomplete="off" title="البحث اللحظي في كامل النظام">
+            <button type="button" class="btn-clear-global-search d-none" id="btnClearGlobalSearch" title="مسح">&times;</button>
+          </div>
+          <div class="global-search-dropdown d-none" id="globalSearchDropdown">
+            <div class="search-dropdown-content" id="searchDropdownContent"></div>
+          </div>
+        </div>
+
+        <div class="topbar-left">
+          <div class="header-clock" id="headerClock">
+            <i class="fa-regular fa-clock"></i>
+            <span id="currentTimeDisplay">--:--:--</span>
+            <span class="date-badge" id="currentDateDisplay">--/--/----</span>
+          </div>
+
+          <div class="quick-actions">
+            <button class="btn btn-primary" id="btnQuickNewPatient">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>مريضة جديدة</span>
+            </button>
+            <button class="btn btn-accent" id="btnQuickNewVisit">
+              <i class="fa-solid fa-stethoscope"></i>
+              <span>كشف جديد</span>
+            </button>
+            <button class="btn btn-emerald" id="btnQuickNewRx">
+              <i class="fa-solid fa-file-prescription"></i>
+              <span>روشتة سريعة</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <div class="content-wrapper">
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: VISITS & DIAGNOSIS -->
+        <!-- ========================================== -->
+        <section class="view-panel active" id="viewVisits">
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="header-title">
+                <i class="fa-solid fa-stethoscope text-primary"></i>
+                <h3>سجل الكشوفات والتشخيصات بالتوقيت والتواريخ</h3>
+              </div>
+              <div class="header-actions">
+                <div class="search-input-wrap">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="visitSearchInput" placeholder="بحث بالتشخيص، اسم المريضة، السونار..." title="بحث في سجل الكشوفات">
+                </div>
+                <button class="btn btn-accent" id="btnOpenNewVisitModal">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>تسجيل كشف وتشخيص جديد</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Toolbar for Visits -->
+            <div class="filter-toolbar">
+              <div class="filter-group">
+                <label for="filterVisitType"><i class="fa-solid fa-tag text-primary"></i> نوع الزيارة:</label>
+                <select id="filterVisitType" class="form-control form-control-sm">
+                  <option value="all">كل الأنواع</option>
+                  <option value="كشف نساء وتوليد">كشف نساء وتوليد</option>
+                  <option value="متابعة حمل دورية">متابعة حمل دورية</option>
+                  <option value="فحص سونار تفصيلي">فحص سونار تفصيلي</option>
+                  <option value="إعادة ومراجعة تحاليل">إعادة ومراجعة تحاليل</option>
+                  <option value="طوارئ ومغص حاد">طوارئ ومغص حاد</option>
+                  <option value="استشارة تأخر إنجاب">استشارة تأخر إنجاب</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filterVisitHasRx"><i class="fa-solid fa-prescription text-emerald"></i> الروشتة:</label>
+                <select id="filterVisitHasRx" class="form-control form-control-sm">
+                  <option value="all">الكل</option>
+                  <option value="true">روشتة صادرة</option>
+                  <option value="false">بدون روشتة</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filterVisitDate"><i class="fa-regular fa-calendar text-slate-500"></i> التاريخ:</label>
+                <input type="date" id="filterVisitDate" class="form-control form-control-sm" title="تصفية بتاريخ الكشف">
+              </div>
+              <div class="filter-actions">
+                <button type="button" class="btn btn-sm btn-outline" id="btnResetVisitFilters" title="إلغاء الفلاتر">
+                  <i class="fa-solid fa-rotate-left"></i> <span>إعادة ضبط</span>
+                </button>
+                <span class="filter-count-badge" id="visitFilterCount">عرض 0 كشف</span>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>التاريخ والوقت</th>
+                    <th>المريضة</th>
+                    <th>النوع</th>
+                    <th>الضغط / الوزن</th>
+                    <th>عمر الحمل / النبض</th>
+                    <th>التشخيص الطبي</th>
+                    <th>الروشتة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="visitsTableBody">
+                  <tr>
+                    <td colspan="8" class="text-center p-4">جاري تحميل سجل الكشوفات...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALS -->
+  <!-- ===================================================================== -->
+
+  <!-- 1. MODAL: ADD / EDIT PATIENT -->
+  <div class="modal-overlay" id="modalPatient">
+    <div class="modal-box modal-lg">
+      <div class="modal-header">
+        <h3 id="modalPatientTitle"><i class="fa-solid fa-user-plus text-primary"></i> تسجيل مريضة جديدة</h3>
+        <button class="modal-close" data-close="modalPatient">&times;</button>
+      </div>
+      <form id="formPatient">
+        <input type="hidden" id="patientFormId">
+        <div class="modal-body">
+          <h4 class="form-section-title"><i class="fa-regular fa-id-card"></i> البيانات الشخصية والاتصال</h4>
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="patientFullName">الاسم بالكامل *</label>
+              <input type="text" id="patientFullName" class="form-control" required placeholder="مثال: منى محمود السيد">
+            </div>
+            <div class="form-group col-3">
+              <label for="patientAge">السن (بالسنوات) *</label>
+              <input type="number" id="patientAge" class="form-control" min="12" max="75" required placeholder="مثال: 27">
+            </div>
+            <div class="form-group col-3">
+              <label for="patientBloodGroup">فصيلة الدم</label>
+              <select id="patientBloodGroup" class="form-control" title="فصيلة الدم">
+                <option value="غير محدد">غير محدد</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="patientPhone">رقم الهاتف *</label>
+              <input type="tel" id="patientPhone" class="form-control" required placeholder="010XXXXXXXX">
+            </div>
+            <div class="form-group col-4">
+              <label for="patientPhoneAlt">هاتف إضافي / هاتف الزوج</label>
+              <input type="tel" id="patientPhoneAlt" class="form-control" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="form-group col-4">
+              <label for="patientHusband">اسم الزوج</label>
+              <input type="text" id="patientHusband" class="form-control" placeholder="اسم الزوج">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-12">
+              <label for="patientAddress">العنوان السكني</label>
+              <input type="text" id="patientAddress" class="form-control" placeholder="المدينة - الحي - الشارع">
+            </div>
+          </div>
+
+          <details class="optional-clinical-details">
+            <summary class="optional-clinical-summary">
+              <span><i class="fa-solid fa-stethoscope text-primary"></i> بيانات طبية وتوليدية أولية (اختياري - يسجلها الطبيب داخل غرفة الكشف)</span>
+              <span class="badge badge-booked">اختياري</span>
+            </summary>
+            <div class="optional-clinical-body">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label for="patientAllergies">حساسية الأدوية (Allergies)</label>
+                  <input type="text" id="patientAllergies" class="form-control" value="لا توجد حساسية معروفة" placeholder="مثل: حساسية بنسلين">
+                </div>
+                <div class="form-group col-6">
+                  <label for="patientChronic">الأمراض المزمنة (إن وجدت)</label>
+                  <input type="text" id="patientChronic" class="form-control" placeholder="مثل: السكري، ارتفاع ضغط الدم، الغدة الدرقية...">
+                </div>
+              </div>
+
+              <h4 class="form-section-title"><i class="fa-solid fa-baby text-rose"></i> التاريخ النسائي والتوليدي (Obstetric History)</h4>
+              <div class="form-row obstetrics-counters">
+                <div class="form-group col-2">
+                  <label for="patientGravida" title="Gravida: إجمالي مرات الحمل">مرات الحمل (G)</label>
+                  <input type="number" id="patientGravida" class="form-control text-center font-bold" min="0" value="0" title="مرات الحمل (G)" placeholder="0">
+                </div>
+                <div class="form-group col-2">
+                  <label for="patientPara" title="Para: إجمالي مرات الولادة">مرات الولادة (P)</label>
+                  <input type="number" id="patientPara" class="form-control text-center font-bold" min="0" value="0" title="مرات الولادة (P)" placeholder="0">
+                </div>
+                <div class="form-group col-2">
+                  <label for="patientAbortion" title="Abortion: مرات الإجهاض">الإجهاض (A)</label>
+                  <input type="number" id="patientAbortion" class="form-control text-center font-bold" min="0" value="0" title="مرات الإجهاض (A)" placeholder="0">
+                </div>
+                <div class="form-group col-2">
+                  <label for="patientLiving" title="Living: الأطفال الأحياء">الأحياء (L)</label>
+                  <input type="number" id="patientLiving" class="form-control text-center font-bold" min="0" value="0" title="الأطفال الأحياء (L)" placeholder="0">
+                </div>
+                <div class="form-group col-2">
+                  <label for="patientCs">قيصري (CS)</label>
+                  <input type="number" id="patientCs" class="form-control text-center font-bold" min="0" value="0" title="الولادات القيصرية (CS)" placeholder="0">
+                </div>
+                <div class="form-group col-2">
+                  <label for="patientNormalDeliv">ولادة طبيعية</label>
+                  <input type="number" id="patientNormalDeliv" class="form-control text-center font-bold" min="0" value="0" title="الولادة الطبيعية" placeholder="0">
+                </div>
+              </div>
+
+              <h4 class="form-section-title"><i class="fa-solid fa-person-pregnant text-rose"></i> متابعة الحمل الحالي</h4>
+              <div class="form-row align-items-center">
+                <div class="form-group col-3">
+                  <label class="checkbox-label" for="patientIsPregnant">
+                    <input type="checkbox" id="patientIsPregnant" title="المريضة حامل حالياً">
+                    <span>المريضة حامل حالياً</span>
+                  </label>
+                </div>
+                <div class="form-group col-4">
+                  <label for="patientLmp">تاريخ آخر دورة (LMP)</label>
+                  <input type="date" id="patientLmp" class="form-control" title="تاريخ آخر دورة (LMP)">
+                </div>
+                <div class="form-group col-5">
+                  <label for="patientEdd">الموعد المتوقع للولادة (EDD)</label>
+                  <input type="date" id="patientEdd" class="form-control" readonly title="الموعد المتوقع للولادة (EDD) - يتم حسابه تلقائياً من تاريخ LMP">
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div class="form-group">
+            <label for="patientNotes">ملاحظات إضافية وتاريخ مرضي</label>
+            <textarea id="patientNotes" class="form-control" rows="2" placeholder="أي ملاحظات هامة تخص المريضة..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="modalPatient">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btnSavePatient">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>حفظ بيانات المريضة</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MODAL: BOOK APPOINTMENT -->
+  <div class="modal-overlay" id="modalAppointment">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalAppointmentTitle"><i class="fa-regular fa-calendar-plus text-primary"></i> حجز موعد جديد</h3>
+        <button class="modal-close" data-close="modalAppointment">&times;</button>
+      </div>
+      <form id="formAppointment">
+        <input type="hidden" id="appFormId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="appPatientSelect">تحديد المريضة *</label>
+            <select id="appPatientSelect" class="form-control" required title="تحديد المريضة">
+              <option value="">-- اختر مريضة من القائمة --</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="appDate">تاريخ الموعد *</label>
+              <input type="date" id="appDate" class="form-control" required title="تاريخ الموعد">
+            </div>
+            <div class="form-group col-6">
+              <label for="appTime">توقيت الحضور التقديري *</label>
+              <input type="time" id="appTime" class="form-control" value="18:00" required title="توقيت الحضور التقديري">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="appType">نوع الكشف</label>
+              <select id="appType" class="form-control" title="نوع الكشف">
+                <option value="كشف جديد">كشف جديد</option>
+                <option value="متابعة حمل دورية">متابعة حمل دورية</option>
+                <option value="إعادة واستشارة">إعادة واستشارة</option>
+                <option value="فحص سونار تفصيلي">فحص سونار تفصيلي</option>
+                <option value="تركيب لولب / وسيلة">تركيب لولب / وسيلة</option>
+                <option value="استشارة عقم وتأخر إنجاب">استشارة عقم وتأخر إنجاب</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label for="appFee">قيمة الكشف (ج.م)</label>
+              <input type="number" id="appFee" class="form-control" value="300" title="قيمة الكشف" placeholder="300">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="appNotes">ملاحظات الحجز</label>
+            <textarea id="appNotes" class="form-control" rows="2" placeholder="أي تفاصيل خاصة بالحجز..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="modalAppointment">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="btnAppSubmit">
+            <i class="fa-solid fa-check"></i>
+            <span id="btnAppSubmitText">تأكيد الحجز وإضافة للطابور</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MODAL: RECORD VISIT & DIAGNOSIS WITH LIVE TIMESTAMPS -->
+  <div class="modal-overlay" id="modalVisit">
+    <div class="modal-box modal-xl">
+      <div class="modal-header">
+        <h3 id="modalVisitTitle"><i class="fa-solid fa-stethoscope text-primary"></i> تسجيل كشف وتشخيص إكلينيكي (د. حاتم عواجة)</h3>
+        <button class="modal-close" data-close="modalVisit">&times;</button>
+      </div>
+      <form id="formVisit">
+        <input type="hidden" id="visitFormId">
+        <input type="hidden" id="visitAppointmentId">
+        <div class="modal-body">
+          
+          <!-- Patient Selection & Timestamps -->
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="visitPatientSelect">المريضة *</label>
+              <select id="visitPatientSelect" class="form-control" required title="المريضة">
+                <option value="">-- اختر مريضة --</option>
+              </select>
+            </div>
+            <div class="form-group col-3">
+              <label for="visitDate">تاريخ الكشف *</label>
+              <input type="date" id="visitDate" class="form-control" required title="تاريخ الكشف">
+            </div>
+            <div class="form-group col-3">
+              <label for="visitTime">توقيت الكشف الدقيق *</label>
+              <input type="time" id="visitTime" class="form-control" step="1" required title="توقيت الكشف الدقيق">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="visitType">نوع الزيارة</label>
+              <select id="visitType" class="form-control" title="نوع الزيارة">
+                <option value="كشف نساء وتوليد">كشف نساء وتوليد</option>
+                <option value="متابعة حمل دورية">متابعة حمل دورية</option>
+                <option value="فحص سونار تفصيلي">فحص سونار تفصيلي</option>
+                <option value="إعادة ومراجعة تحاليل">إعادة ومراجعة تحاليل</option>
+                <option value="طوارئ ومغص حاد">طوارئ ومغص حاد</option>
+                <option value="استشارة تأخر إنجاب">استشارة تأخر إنجاب</option>
+              </select>
+            </div>
+            <div class="form-group col-8">
+              <label for="visitComplaint">شكوى المريضة (Chief Complaint) *</label>
+              <input type="text" id="visitComplaint" class="form-control" required placeholder="مثال: آلام أسفل البطن والظهر، متابعة سونار روتينية، قيء مستمر...">
+            </div>
+          </div>
+
+          <!-- Doctor's Clinical Assessment: Allergies, Chronic Diseases & Obstetric History -->
+          <div class="doctor-clinical-panel">
+            <div class="doctor-panel-header">
+              <div class="doctor-panel-title">
+                <i class="fa-solid fa-user-doctor text-primary"></i>
+                <div>
+                  <h4 class="doctor-panel-heading">السجل الطبي والتوليدي للمريضة (يسجله الطبيب)</h4>
+                  <small class="doctor-panel-sub">يتم تحديث هذه البيانات تلقائياً في ملف المريضة العام عند حفظ الكشف</small>
+                </div>
+              </div>
+              <span class="badge badge-booked"><i class="fa-solid fa-arrows-rotate"></i> مزامنة تلقائية مع الملف</span>
+            </div>
+
+            <!-- Allergies & Chronic Diseases -->
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label for="visitAllergies"><i class="fa-solid fa-shield-virus text-danger"></i> حساسية الأدوية (Allergies)</label>
+                <input type="text" id="visitAllergies" class="form-control" value="لا توجد حساسية معروفة" placeholder="لا توجد حساسية معروفة">
+              </div>
+              <div class="form-group col-6">
+                <label for="visitChronic"><i class="fa-solid fa-heart-pulse text-amber"></i> الأمراض المزمنة (إن وجدت)</label>
+                <input type="text" id="visitChronic" class="form-control" placeholder="مثل: السكري، ارتفاع ضغط الدم، الغدة الدرقية...">
+              </div>
+            </div>
+
+            <!-- Obstetric History (G, P, A, L, CS, Normal) -->
+            <h5 class="form-subsection-title"><i class="fa-solid fa-baby text-rose"></i> التاريخ النسائي والتوليدي (Obstetric History)</h5>
+            <div class="form-row obstetrics-counters">
+              <div class="form-group col-2">
+                <label for="visitGravida" title="Gravida: إجمالي مرات الحمل">مرات الحمل (G)</label>
+                <input type="number" id="visitGravida" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+              <div class="form-group col-2">
+                <label for="visitPara" title="Para: إجمالي مرات الولادة">مرات الولادة (P)</label>
+                <input type="number" id="visitPara" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+              <div class="form-group col-2">
+                <label for="visitAbortion" title="Abortion: مرات الإجهاض">الإجهاض (A)</label>
+                <input type="number" id="visitAbortion" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+              <div class="form-group col-2">
+                <label for="visitLiving" title="Living: الأطفال الأحياء">الأحياء (L)</label>
+                <input type="number" id="visitLiving" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+              <div class="form-group col-2">
+                <label for="visitCs" title="الولادات القيصرية (CS)">قيصري (CS)</label>
+                <input type="number" id="visitCs" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+              <div class="form-group col-2">
+                <label for="visitNormalDeliv" title="الولادة الطبيعية">ولادة طبيعية</label>
+                <input type="number" id="visitNormalDeliv" class="form-control text-center font-bold" min="0" value="0" placeholder="0">
+              </div>
+            </div>
+
+            <!-- Current Pregnancy Tracking -->
+            <h5 class="form-subsection-title"><i class="fa-solid fa-person-pregnant text-rose"></i> متابعة الحمل الحالي</h5>
+            <div class="form-row align-items-center">
+              <div class="form-group col-3">
+                <label class="checkbox-label" for="visitIsPregnant">
+                  <input type="checkbox" id="visitIsPregnant" title="المريضة حامل حالياً">
+                  <span><strong>المريضة حامل حالياً</strong></span>
+                </label>
+              </div>
+              <div class="form-group col-4">
+                <label for="visitLmp">تاريخ آخر دورة (LMP)</label>
+                <input type="date" id="visitLmp" class="form-control" title="تاريخ آخر دورة (LMP)">
+              </div>
+              <div class="form-group col-5">
+                <label for="visitEdd">الموعد المتوقع للولادة (EDD)</label>
+                <input type="date" id="visitEdd" class="form-control" readonly title="الموعد المتوقع للولادة (EDD) - يُحسب تلقائياً من تاريخ LMP">
+              </div>
+            </div>
+          </div>
+
+          <!-- Clinical Vitals & OB/GYN Measurements -->
+          <h4 class="form-section-title"><i class="fa-solid fa-heart-pulse text-danger"></i> العلامات الحيوية وقياسات الحمل والسونار</h4>
+          <div class="form-row">
+            <div class="form-group col-3">
+              <label for="visitBp">ضغط الدم (BP)</label>
+              <input type="text" id="visitBp" class="form-control" placeholder="120/80">
+            </div>
+            <div class="form-group col-3">
+              <label for="visitWeight">الوزن الحالي (كجم)</label>
+              <input type="number" id="visitWeight" class="form-control" step="0.1" placeholder="مثال: 68.5">
+            </div>
+            <div class="form-group col-2">
+              <label for="visitTemp">الحرارة (°C)</label>
+              <input type="number" id="visitTemp" class="form-control" step="0.1" value="37.0" title="الحرارة (°C)" placeholder="37.0">
+            </div>
+            <div class="form-group col-2">
+              <label for="visitGaWeeks" title="Gestational Age">عمر الحمل (أسابيع)</label>
+              <input type="number" id="visitGaWeeks" class="form-control" min="0" max="44" placeholder="مثال: 22" title="عمر الحمل (أسابيع)">
+            </div>
+            <div class="form-group col-2">
+              <label for="visitFhr">نبض الجنين (FHR)</label>
+              <input type="number" id="visitFhr" class="form-control" placeholder="140 bpm" title="نبض الجنين (FHR)">
+            </div>
+          </div>
+
+          <!-- Ultrasound findings -->
+          <div class="form-group">
+            <label for="visitUltrasound"><i class="fa-solid fa-wave-square text-primary"></i> نتائج فحص السونار والأشعة التلفزيونية (Ultrasound Findings)</label>
+            <textarea id="visitUltrasound" class="form-control" rows="2" placeholder="تفاصيل السونار: كيس الحمل، وضع الجنين، المشيمة، كمية السائل الأمنيوسي (AFI)، سلامة الأعضاء الداخلية..."></textarea>
+          </div>
+
+          <!-- Medical Diagnosis -->
+          <div class="form-group">
+            <label for="visitDiagnosis"><i class="fa-solid fa-clipboard-check text-emerald"></i> التشخيص الطبي الدقيق (Diagnosis) *</label>
+            <textarea id="visitDiagnosis" class="form-control font-semibold" rows="2" required placeholder="سجل التشخيص الطبي للمريضة بالتفصيل..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-8">
+              <label for="visitClinicalNotes">الملاحظات الإكلينيكية والتوصيات</label>
+              <input type="text" id="visitClinicalNotes" class="form-control" placeholder="تعليمات الراحة، تحاليل مطلوبة (CBC, Urine, Blood Sugar)...">
+            </div>
+            <div class="form-group col-4">
+              <label for="visitNextDate">موعد الزيارة القادمة (المتابعة)</label>
+              <input type="date" id="visitNextDate" class="form-control" title="موعد الزيارة القادمة (المتابعة)">
+            </div>
+          </div>
+
+          <div class="direct-rx-check">
+            <label class="checkbox-label" for="chkCreateRxNow">
+              <input type="checkbox" id="chkCreateRxNow" checked title="فتح نافذة تحرير الروشتة فور حفظ الكشف">
+              <span><strong>فتح نافذة تحرير الروشتة فور حفظ الكشف</strong></span>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="modalVisit">إلغاء</button>
+          <button type="submit" class="btn btn-accent" id="btnSaveVisit">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnVisitSubmitText">حفظ الكشف والتشخيص بالتوقيت</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. MODAL: CREATE / EDIT PRESCRIPTION -->
+  <div class="modal-overlay" id="modalPrescription">
+    <div class="modal-box modal-xl">
+      <div class="modal-header">
+        <h3 id="modalPrescriptionTitle"><i class="fa-solid fa-prescription text-emerald"></i> تحرير روشتة علاجية - د. حاتم عواجة</h3>
+        <button class="modal-close" data-close="modalPrescription">&times;</button>
+      </div>
+      <form id="formPrescription">
+        <input type="hidden" id="rxFormId">
+        <input type="hidden" id="rxVisitId">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="rxPatientSelect">المريضة *</label>
+              <select id="rxPatientSelect" class="form-control" required title="المريضة">
+                <option value="">-- اختر المريضة --</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label for="rxDiagnosisSummary">ملخص التشخيص في الروشتة</label>
+              <input type="text" id="rxDiagnosisSummary" class="form-control" placeholder="متابعة حمل / أنيميا / تثبيت حمل...">
+            </div>
+          </div>
+
+          <!-- Quick Drug presets selector -->
+          <div class="quick-drugs-bar">
+            <div class="quick-drugs-title">
+              <i class="fa-solid fa-bolt text-warning"></i>
+              <span>إضافة سريعة من بنك أدوية النساء والتوليد الشائعة:</span>
+            </div>
+            <div class="drug-pills-wrap" id="drugPresetPills">
+              <!-- populated dynamically from drugs catalog -->
+            </div>
+          </div>
+
+          <!-- Medications List -->
+          <h4 class="form-section-title"><i class="fa-solid fa-pills text-primary"></i> قائمة الأدوية والجرعات</h4>
+          <div id="rxItemsContainer" class="rx-items-container">
+            <!-- Dynamic prescription item rows -->
+          </div>
+
+          <button type="button" class="btn btn-sm btn-outline mb-3" id="btnAddRxItemRow">
+            <i class="fa-solid fa-plus"></i>
+            <span>إضافة دواء جديد</span>
+          </button>
+
+          <div class="form-group">
+            <label for="rxGeneralAdvice"><i class="fa-solid fa-heart text-danger"></i> إرشادات عامة للمريضة (تطبع في أسفل الروشتة)</label>
+            <textarea id="rxGeneralAdvice" class="form-control" rows="2" placeholder="الراحة التامة، شرب كميات كافية من الماء، تجنب المجهود الشاق، الحضور الفوري عند أي طارئ..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="modalPrescription">إلغاء</button>
+          <button type="submit" class="btn btn-emerald" id="btnSaveRx">
+            <i class="fa-solid fa-check"></i>
+            <span id="btnRxSubmitText">حفظ الروشتة</span>
+          </button>
+          <button type="button" class="btn btn-primary" id="btnSaveAndPrintRx">
+            <i class="fa-solid fa-print"></i>
+            <span>حفظ وطباعة فورية</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. MODAL: PATIENT FULL PROFILE & TIMELINE -->
+  <div class="modal-overlay" id="modalPatientProfile">
+    <div class="modal-box modal-xl">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-address-card text-primary"></i> ملف المريضة الكامل والسجل الطبي</h3>
+        <button class="modal-close" data-close="modalPatientProfile">&times;</button>
+      </div>
+      <div class="modal-body" id="patientProfileContent">
+        <!-- populated dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" data-close="modalPatientProfile">إغلاق</button>
+        <button type="button" class="btn btn-outline text-danger" id="btnProfileDeletePatient">
+          <i class="fa-regular fa-trash-can"></i>
+          <span>حذف ملف المريضة</span>
+        </button>
+        <button type="button" class="btn btn-accent" id="btnProfileNewVisit">
+          <i class="fa-solid fa-stethoscope"></i>
+          <span>تسجيل كشف جديد لها</span>
+        </button>
+        <button type="button" class="btn btn-emerald" id="btnProfileNewRx">
+          <i class="fa-solid fa-prescription"></i>
+          <span>تحرير روشتة لها</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL: PRINTABLE PRESCRIPTION PREVIEW (A5 / A4) -->
+  <div class="modal-overlay" id="modalPrintRx">
+    <div class="modal-box modal-xl">
+      <div class="modal-header no-print">
+        <h3><i class="fa-solid fa-print text-primary"></i> معاينة الروشتة للطباعة</h3>
+        <div class="modal-header-actions">
+          <button class="btn btn-primary" id="btnPrintActual">
+            <i class="fa-solid fa-print"></i>
+            <span>طباعة الروشتة الآن</span>
+          </button>
+          <button class="modal-close" data-close="modalPrintRx">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body p-0">
+        <!-- ACTUAL PRINTABLE PRESCRIPTION CANVAS -->
+        <div class="rx-print-paper" id="rxPrintPaper">
+          <!-- Header: Dr. Hatem Awaja -->
+          <div class="rx-header">
+            <div class="rx-doc-info">
+              <h1 class="rx-doc-name">د. حاتم عواجة</h1>
+              <p class="rx-doc-title">استشاري أمراض النساء والتوليد وجراحة المناظير وعلاج العقم</p>
+              <p class="rx-doc-sub">زميل الكلية الملكية لأطباء النساء والتوليد - دكتوراه أمراض النساء والتوليد</p>
+            </div>
+            <div class="rx-logo-box">
+              <div class="rx-logo-symbol">
+                <i class="fa-solid fa-baby"></i>
+              </div>
+              <span class="rx-clinic-tag">DHA Clinic</span>
+            </div>
+            <div class="rx-doc-info-en" dir="ltr">
+              <h2 class="rx-doc-name-en">Dr. Hatem Awaja</h2>
+              <p class="rx-doc-title-en">Consultant Obstetrician & Gynecologist</p>
+              <p class="rx-doc-sub-en">Infertility & Advanced Laparoscopy</p>
+            </div>
+          </div>
+
+          <div class="rx-header-divider"></div>
+
+          <!-- Patient Header Strip -->
+          <div class="rx-patient-strip">
+            <div class="strip-item">
+              <span class="strip-label">اسم المريضة:</span>
+              <strong id="printPtName" class="strip-value">--</strong>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">السن:</span>
+              <strong id="printPtAge" class="strip-value">--</strong>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">التاريخ:</span>
+              <strong id="printRxDate" class="strip-value">--</strong>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">رقم الروشتة:</span>
+              <strong id="printRxCode" class="strip-value">--</strong>
+            </div>
+          </div>
+
+          <div class="rx-clinical-substrip" id="printClinicalSubstrip">
+            <div class="strip-item">
+              <span class="strip-label">التشخيص:</span>
+              <span id="printDiagnosisSummary" class="strip-value-accent">--</span>
+            </div>
+            <div class="strip-item" id="printGaBox">
+              <span class="strip-label">عمر الحمل:</span>
+              <span id="printGaValue" class="strip-value-accent">--</span>
+            </div>
+            <div class="strip-item">
+              <span class="strip-label">فصيلة الدم:</span>
+              <span id="printBloodGroup" class="strip-value">--</span>
+            </div>
+          </div>
+
+          <!-- RX Body -->
+          <div class="rx-body">
+            <div class="rx-symbol">℞</div>
+            <div class="rx-medications-list" id="printMedicationsList">
+              <!-- Dynamically populated medications -->
+            </div>
+          </div>
+
+          <!-- Advice & Next Visit -->
+          <div class="rx-instructions-box" id="printInstructionsBox">
+            <div class="instructions-label"><i class="fa-regular fa-lightbulb"></i> إرشادات الطبيب:</div>
+            <p id="printAdviceText">--</p>
+          </div>
+
+          <!-- Footer: Clinic address, contacts, signature -->
+          <div class="rx-footer">
+            <div class="rx-clinic-contacts">
+              <p><i class="fa-solid fa-location-dot"></i> العيادة: ميدان التحرير / المعادي - برج الأطباء التخصصي - الدور الرابع</p>
+              <p><i class="fa-solid fa-phone"></i> للحجز والاستفسار: 01000000000 / 0225000000</p>
+            </div>
+            <div class="rx-signature-block">
+              <div class="sign-line">توقيع وختم الطبيب</div>
+              <strong>د. حاتم عواجة</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. MODAL: CONFIRM DELETE PATIENT -->
+  <div class="modal-overlay" id="modalConfirmDelete">
+    <div class="modal-box modal-confirm-delete-box">
+      <div class="modal-header modal-header-danger">
+        <h3 class="modal-title-danger">
+          <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+          <span>تأكيد حذف ملف المريضة</span>
+        </h3>
+        <button class="modal-close" data-close="modalConfirmDelete">&times;</button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <div class="delete-avatar-icon">
+          <i class="fa-solid fa-user-xmark"></i>
+        </div>
+        <h4 class="delete-prompt-title">
+          هل أنت متأكد من رغبتك في حذف المريضة؟
+        </h4>
+        <p class="delete-patient-name-target" id="confirmDeletePatientName">
+          --
+        </p>
+        <div class="delete-warning-notice">
+          <i class="fa-solid fa-circle-exclamation text-danger"></i>
+          <strong>تنبيه هام:</strong> سيتم حذف هذا الملف نهائياً وكافة المواعيد، الكشوفات، قياسات السونار، والروشتات الطبية التابعة لهذه المريضة.
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-confirm">
+        <button type="button" class="btn btn-outline" data-close="modalConfirmDelete">إلغاء وتراجع</button>
+        <button type="button" class="btn btn-rose" id="btnExecuteDeletePatient">
+          <i class="fa-regular fa-trash-can"></i>
+          <span>نعم، حذف الملف الآن</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  
+  <!-- 8. MODAL: CONFIRM RESTORE BACKUP -->
+  <div class="modal-overlay" id="modalConfirmRestore">
+    <div class="modal-box modal-confirm-delete-box">
+      <div class="modal-header modal-header-warning" style="background: linear-gradient(135deg, #d97706, #b45309); color: white;">
+        <h3 style="color: white; margin: 0; font-size: 1.15rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>تأكيد استعادة النسخة الاحتياطية</span>
+        </h3>
+        <button class="modal-close" data-close="modalConfirmRestore" style="color: white;">&times;</button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <div class="delete-avatar-icon" style="background: #fef3c7; color: #d97706;">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <h4 class="delete-prompt-title">
+          هل أنت متأكد من استعادة هذه النسخة الاحتياطية؟
+        </h4>
+        <p class="delete-patient-name-target" id="confirmRestoreFileName" style="color: var(--slate-800); font-weight: 700; direction: ltr;">
+          --
+        </p>
+        <div id="confirmRestoreMetaBox" class="p-3 mb-3 text-start" style="background: var(--slate-50); border-radius: 8px; border: 1px solid var(--slate-200); font-size: 0.9rem;">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="delete-warning-notice" style="background: #fffbeb; border-color: #fde68a; color: #92400e;">
+          <i class="fa-solid fa-circle-exclamation" style="color: #d97706;"></i>
+          <strong>تنبيه هام جداً:</strong> عملية الاستعادة ستقوم باستبدال كافة السجلات الحالية في النظام بالبيانات المحفوظة في هذه النسخة.
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-confirm">
+        <button type="button" class="btn btn-outline" data-close="modalConfirmRestore">إلغاء وتراجع</button>
+        <button type="button" class="btn btn-primary" id="btnExecuteRestore">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>نعم، استعادة البيانات الآن</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Script Modules -->
+  <script src="js/app.js"></script>
+</body>
+</html>
