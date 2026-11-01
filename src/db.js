@@ -305,7 +305,8 @@ function initMemoryStore() {
       { id: 10, category: 'وسائل تنظيم الأسرة', name: 'Microlut (أقراص الرضاعة)', default_dosage: '0.03 mg', default_frequency: 'قرص يومياً في نفس الساعة', default_duration: 'مستمر طوال فترة الرضاعة', default_instructions: 'لا تؤثر على إدرار حليب الأم' },
       { id: 11, category: 'تحاميل مهبلية ومطهرات', name: 'Gyno-Daktarin (جاينو دكتارين)', default_dosage: '400 mg', default_frequency: 'تحميلة مهبلية مساءً', default_duration: 'لمدة 3 أيام متتالية', default_instructions: 'لعلاج الالتهابات الفطرية المهبلية' },
       { id: 12, category: 'منشطات التبويض', name: 'Clomid (كلوميد)', default_dosage: '50 mg', default_frequency: 'قرصين يومياً من اليوم 2 للدورة', default_duration: 'لمدة 5 أيام', default_instructions: 'يؤخذ بعد استشارة وفحص السونار المهبلي' }
-    ]
+    ],
+    attachments: []
   };
   return fallbackStore;
 }
@@ -335,6 +336,21 @@ async function connectDB() {
         console.log('✅ Database schema and seed data loaded successfully!');
       }
     }
+
+    // Ensure visit_attachments table exists
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS visit_attachments (
+          id SERIAL PRIMARY KEY,
+          visit_id INT REFERENCES visits(id) ON DELETE CASCADE,
+          patient_id INT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+          attachment_type VARCHAR(50) DEFAULT 'سونار',
+          title VARCHAR(150),
+          file_data TEXT NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id);
+      CREATE INDEX IF NOT EXISTS idx_attachments_patient ON visit_attachments(patient_id);
+    `);
     client.release();
     return true;
   } catch (err) {

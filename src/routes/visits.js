@@ -25,7 +25,8 @@ router.get('/', async (req, res) => {
                p.phone as patient_phone,
                p.age as patient_age,
                p.is_pregnant,
-               (SELECT COUNT(*) FROM prescriptions pr WHERE pr.visit_id = v.id)::int as prescriptions_count
+               (SELECT COUNT(*) FROM prescriptions pr WHERE pr.visit_id = v.id)::int as prescriptions_count,
+               (SELECT COUNT(*) FROM visit_attachments va WHERE va.visit_id = v.id)::int as attachments_count
         FROM visits v
         JOIN patients p ON v.patient_id = p.id
       `;
@@ -155,11 +156,19 @@ router.get('/:id', async (req, res) => {
         GROUP BY pr.id
       `, [visitId]);
 
+      const attRes = await db.query(`
+        SELECT id, visit_id, patient_id, attachment_type, title, file_data, created_at
+        FROM visit_attachments
+        WHERE visit_id = $1
+        ORDER BY id ASC
+      `, [visitId]);
+
       return res.json({
         success: true,
         data: {
           ...vRes.rows[0],
-          prescriptions: rxRes.rows
+          prescriptions: rxRes.rows,
+          attachments: attRes.rows
         }
       });
     }
@@ -222,6 +231,7 @@ router.post('/', async (req, res) => {
       diagnosis,
       clinical_notes,
       next_visit_date,
+      attachments,
       // Doctor's recorded clinical & obstetric history
       allergies,
       chronic_diseases,
@@ -297,6 +307,19 @@ router.post('/', async (req, res) => {
       // If tied to an appointment, mark it completed
       if (appointment_id) {
         await db.query(`UPDATE appointments SET status = 'مكتمل' WHERE id = $1`, [appointment_id]);
+      }
+
+      // Save attachments (ultrasound, lab results) if provided
+      const newVisitId = insRes.rows[0].id;
+      if (Array.isArray(attachments) && attachments.length > 0) {
+        for (const att of attachments) {
+          if (att.file_data) {
+            await db.query(`
+              INSERT INTO visit_attachments (visit_id, patient_id, attachment_type, title, file_data)
+              VALUES ($1, $2, $3, $4, $5)
+            `, [newVisitId, parseInt(patient_id, 10), att.attachment_type || 'سونار', att.title || 'صورة فحص', att.file_data]);
+          }
+        }
       }
 
       return res.status(201).json({ success: true, data: insRes.rows[0] });
@@ -384,6 +407,7 @@ router.put('/:id', async (req, res) => {
       diagnosis,
       clinical_notes,
       next_visit_date,
+      attachments,
       allergies,
       chronic_diseases,
       gravida,
@@ -449,6 +473,19 @@ router.put('/:id', async (req, res) => {
         ptUpdates.push(`updated_at = CURRENT_TIMESTAMP`);
         ptParams.push(targetPatientId);
         await db.query(`UPDATE patients SET ${ptUpdates.join(', ')} WHERE id = $${ptIdx}`, ptParams);
+      }
+
+      // Update attachments if supplied
+      if (Array.isArray(attachments)) {
+        await db.query('DELETE FROM visit_attachments WHERE visit_id = $1', [visitId]);
+        for (const att of attachments) {
+          if (att.file_data) {
+            await db.query(`
+              INSERT INTO visit_attachments (visit_id, patient_id, attachment_type, title, file_data)
+              VALUES ($1, $2, $3, $4, $5)
+            `, [visitId, targetPatientId, att.attachment_type || 'سونار', att.title || 'صورة فحص', att.file_data]);
+          }
+        }
       }
 
       const freshRes = await db.query('SELECT * FROM visits WHERE id = $1', [visitId]);

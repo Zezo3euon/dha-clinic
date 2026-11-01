@@ -159,13 +159,27 @@ router.get('/:id', async (req, res) => {
         ORDER BY p.issue_date DESC, p.issue_time DESC
       `, [patientId]);
 
+      const attRes = await db.query(`
+        SELECT va.*, v.visit_date, v.visit_time, v.gestational_age_weeks, v.diagnosis
+        FROM visit_attachments va
+        LEFT JOIN visits v ON va.visit_id = v.id
+        WHERE va.patient_id = $1
+        ORDER BY va.created_at DESC
+      `, [patientId]);
+
+      const visitsWithAtt = vRes.rows.map(v => ({
+        ...v,
+        attachments: attRes.rows.filter(a => a.visit_id === v.id)
+      }));
+
       return res.json({
         success: true,
         data: {
           ...patient,
-          visits: vRes.rows,
+          visits: visitsWithAtt,
           appointments: aRes.rows,
-          prescriptions: rxRes.rows
+          prescriptions: rxRes.rows,
+          attachments: attRes.rows
         }
       });
     }

@@ -162,3 +162,19 @@ VALUES
 (1, 'Caltrate + Vitamin D (كالسيوم د3)', '600 mg', 'قرص واحد يومياً', 'طوال فترة الحمل', 'يؤخذ بعد الغداء بساعة'),
 (1, 'Feroglobin B12 (حديد وزنك وفوليك)', '1 capsule', 'كبسولة يومياً', 'طوال فترة الحمل', 'تؤخذ بعد العشاء مع كوب عصير برتقال'),
 (1, 'Omega-3 Maternal (زيت سمك نقي)', '1000 mg', 'كبسولة يومياً', 'لمدة 3 أشهر', 'بعد الإفطار لدعم تطور الجهاز العصبي للجنين');
+
+-- ============================================================================
+-- مرفقات الزيارات وصور السونار والتحاليل
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS visit_attachments (
+    id SERIAL PRIMARY KEY,
+    visit_id INT REFERENCES visits(id) ON DELETE CASCADE,
+    patient_id INT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+    attachment_type VARCHAR(50) DEFAULT 'سونار', -- 'سونار', 'تحليل دم', 'سكر', 'غدة', 'أخرى'
+    title VARCHAR(150),
+    file_data TEXT NOT NULL, -- Base64 Data URI
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id);
+CREATE INDEX IF NOT EXISTS idx_attachments_patient ON visit_attachments(patient_id);

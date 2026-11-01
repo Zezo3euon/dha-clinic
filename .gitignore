@@ -21,3 +21,4 @@ Thumbs.db
 # Local database data & temporary files
 backups/*.json
 !backups/.gitkeep
+

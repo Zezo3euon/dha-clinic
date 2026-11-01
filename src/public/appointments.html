@@ -119,6 +119,11 @@
           </div>
 
           <div class="quick-actions">
+            <button class="btn-toggle-privacy" id="btnTogglePrivacyMode" title="تفعيل وضع الخصوصية للاستقبال (حجب التشخيصات والروشتات)">
+              <i class="fa-solid fa-user-shield"></i>
+              <span id="privacyModeText">وضع الاستقبال</span>
+            </button>
+
             <button class="btn btn-primary" id="btnQuickNewPatient">
               <i class="fa-solid fa-user-plus"></i>
               <span>مريضة جديدة</span>
@@ -599,6 +604,34 @@
             <textarea id="visitUltrasound" class="form-control" rows="2" placeholder="تفاصيل السونار: كيس الحمل، وضع الجنين، المشيمة، كمية السائل الأمنيوسي (AFI)، سلامة الأعضاء الداخلية..."></textarea>
           </div>
 
+          <!-- Visit Attachments (Ultrasound & Lab Photos) -->
+          <div class="visit-attachments-section">
+            <div class="attachments-upload-bar">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-camera text-primary"></i>
+                <label class="mb-0 font-bold">مرفقات السونار والتحاليل الطبية للزيارة</label>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <select id="selectVisitAttachmentType" class="form-control form-control-sm" style="width: auto;">
+                  <option value="سونار">صورة سونار</option>
+                  <option value="تحليل دم / CBC">تحليل دم / CBC</option>
+                  <option value="سكر عشوائي / تراكمي">سكر عشوائي / تراكمي</option>
+                  <option value="غدة درقية / TSH">غدة درقية / TSH</option>
+                  <option value="أشعة تفصيلية / 4D">أشعة تفصيلية / 4D</option>
+                  <option value="مرفق طبي آخر">مرفق طبي آخر</option>
+                </select>
+                <input type="file" id="inputVisitAttachmentFile" accept="image/*" class="d-none">
+                <button type="button" class="btn btn-sm btn-outline" id="btnTriggerAddAttachment">
+                  <i class="fa-solid fa-upload"></i> رفع صورة / ملف
+                </button>
+              </div>
+            </div>
+            <div class="attachments-grid" id="visitAttachmentsContainer">
+              <!-- Dynamically populated previews -->
+            </div>
+          </div>
+
+
           <!-- Medical Diagnosis -->
           <div class="form-group">
             <label for="visitDiagnosis"><i class="fa-solid fa-clipboard-check text-emerald"></i> التشخيص الطبي الدقيق (Diagnosis) *</label>
@@ -659,6 +692,10 @@
               <input type="text" id="rxDiagnosisSummary" class="form-control" placeholder="متابعة حمل / أنيميا / تثبيت حمل...">
             </div>
           </div>
+
+          <!-- Prescription Alerts: Drug Allergies & Drug Interactions -->
+          <div class="rx-alerts-container d-none" id="rxAlertsContainer"></div>
+
 
           <!-- Quick Drug presets selector -->
           <div class="quick-drugs-bar">
@@ -907,6 +944,17 @@
           <span>نعم، استعادة البيانات الآن</span>
         </button>
       </div>
+    </div>
+  </div>
+
+    <!-- 9. MODAL: IMAGE LIGHTBOX VIEWER -->
+  <div class="modal-overlay lightbox-modal" id="modalLightbox">
+    <div class="lightbox-content">
+      <div class="lightbox-header">
+        <h4 id="lightboxTitle" style="color: white; margin: 0; font-size: 1rem;">معاينة المرفق</h4>
+        <button class="lightbox-close" data-close="modalLightbox">&times;</button>
+      </div>
+      <img id="lightboxImg" src="" alt="معاينة المرفق">
     </div>
   </div>
 

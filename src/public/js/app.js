@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupForms();
     setupSearches();
     setupPrescriptionBuilder();
+    setupPrivacyMode();
 
     // Check query params for appointment date (e.g. /appointments?date=2026-10-31)
     const urlParams = new URLSearchParams(window.location.search);
@@ -206,6 +207,76 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // 2. Real-Time Clock & Header Date
   // --------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------
+  // Receptionist Privacy Mode & WhatsApp Reminders & Lightbox
+  // --------------------------------------------------------------------------
+  function setupPrivacyMode() {
+    const btnTogglePrivacyMode = document.getElementById('btnTogglePrivacyMode');
+    const textEl = document.getElementById('privacyModeText');
+
+    const updateUI = (isPrivacy) => {
+      if (isPrivacy) {
+        document.body.classList.add('receptionist-mode');
+        if (btnTogglePrivacyMode) {
+          btnTogglePrivacyMode.classList.add('active');
+          btnTogglePrivacyMode.title = 'إلغاء وضع الاستقبال (العودة لوضع الطبيب الكامل)';
+        }
+        if (textEl) textEl.textContent = 'وضع الاستقبال (مفعّل)';
+      } else {
+        document.body.classList.remove('receptionist-mode');
+        if (btnTogglePrivacyMode) {
+          btnTogglePrivacyMode.classList.remove('active');
+          btnTogglePrivacyMode.title = 'تفعيل وضع الخصوصية للاستقبال (حجب التشخيصات والروشتات)';
+        }
+        if (textEl) textEl.textContent = 'وضع الاستقبال';
+      }
+    };
+
+    const saved = localStorage.getItem('dha_privacy_mode') === '1';
+    updateUI(saved);
+
+    if (btnTogglePrivacyMode) {
+      btnTogglePrivacyMode.addEventListener('click', () => {
+        const isNow = !document.body.classList.contains('receptionist-mode');
+        localStorage.setItem('dha_privacy_mode', isNow ? '1' : '0');
+        updateUI(isNow);
+        showToast(isNow ? 'تم تفعيل وضع خصوصية الاستقبال (تم حجب التشخيصات والروشتات)' : 'تم العودة إلى وضع الطبيب الكامل');
+      });
+    }
+  }
+
+  window.openLightbox = (imgSrc, title = 'معاينة المرفق') => {
+    const modal = document.getElementById('modalLightbox');
+    const img = document.getElementById('lightboxImg');
+    const titleEl = document.getElementById('lightboxTitle');
+    if (img) img.src = imgSrc;
+    if (titleEl) titleEl.textContent = title;
+    if (modal) openModal(modal);
+  };
+
+  window.sendWhatsAppReminder = (patientName, phone, date, time) => {
+    if (!phone || phone === '--' || !phone.trim()) {
+      showToast('رقم هاتف المريضة غير مسجل', 'warning');
+      return;
+    }
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '20' + cleanPhone.slice(1);
+    } else if (!cleanPhone.startsWith('20') && cleanPhone.length === 10) {
+      cleanPhone = '20' + cleanPhone;
+    }
+    const timeStr = time ? time.slice(0, 5) : '';
+    const dateStr = (date === 'اليوم' || !date) ? 'اليوم' : formatDate(date);
+    const msg = 'مرحباً بحضرتك أستاذة / ' + (patientName || 'الفاضلة') + ' 🌸\n' +
+                'نود تذكيرك بموعد كشفك لدى عيادة الدكتور حاتم عواجة (استشاري النساء والتوليد).\n' +
+                '📅 التاريخ: ' + dateStr + '\n' +
+                (timeStr ? '⏰ الموعد: ' + timeStr + '\n' : '') +
+                'نتمنى لكِ دوام الصحة والعافية، وفي حال الرغبة في تعديل الموعد يرجى التواصل معنا.\n' +
+                'عيادة د. حاتم عواجة 🩺';
+    window.open('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(msg), '_blank');
+  };
+
   function setupClock() {
     const updateTime = () => {
       const now = new Date();
@@ -473,6 +544,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn-icon" onclick="window.viewPatientProfile(${item.patient_id})" title="الملف الطبي">
               <i class="fa-regular fa-id-badge"></i>
             </button>
+            <button class="btn-icon btn-whatsapp-icon" onclick="window.sendWhatsAppReminder('${escapeHtml(item.patient_name || '')}', '${escapeHtml(item.patient_phone || '')}', 'اليوم', '${escapeHtml(item.appointment_time || '')}')" title="إرسال تذكير بالموعد عبر واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
           </div>
         </td>
       </tr>
@@ -550,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><strong>${escapeHtml(p.patient_code)}</strong></td>
         <td>
           <strong>${escapeHtml(p.full_name)}</strong>
-          ${p.notes ? `<p style="font-size:0.74rem; color:#64748b;">${escapeHtml(p.notes)}</p>` : ''}
+          ${p.notes ? `<p class="reception-only-blur" style="font-size:0.74rem; color:#64748b;">${escapeHtml(p.notes)}</p>` : ''}
         </td>
         <td>${p.age} سنة</td>
         <td dir="ltr" class="text-right">${escapeHtml(p.phone)}</td>
@@ -580,6 +654,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </button>
             <button class="btn-icon rx" onclick="window.openNewRxModalForPatient(${p.id})" title="روشتة جديدة">
               <i class="fa-solid fa-prescription"></i>
+            </button>
+            <button class="btn-icon btn-whatsapp-icon" onclick="window.sendWhatsAppReminder('${escapeHtml(p.full_name || '')}', '${escapeHtml(p.phone || '')}', '', '')" title="مراسلة المريضة عبر واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
             </button>
             <button class="btn-icon edit" onclick="window.editPatient(${p.id})" title="تعديل البيانات">
               <i class="fa-regular fa-pen-to-square"></i>
@@ -695,6 +772,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="btn-icon" onclick="window.startExamination(${a.patient_id}, ${a.id})" title="تسجيل كشف فوري">
               <i class="fa-solid fa-stethoscope"></i>
             </button>
+            <button class="btn-icon btn-whatsapp-icon" onclick="window.sendWhatsAppReminder('${escapeHtml(a.patient_name || '')}', '${escapeHtml(a.patient_phone || '')}', '${escapeHtml(a.appointment_date || '')}', '${escapeHtml(a.appointment_time || '')}')" title="إرسال تذكير بالموعد عبر واتساب">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
             <button class="btn-icon edit" onclick="window.editAppointment(${a.id})" title="تعديل الموعد">
               <i class="fa-solid fa-pen"></i>
             </button>
@@ -771,8 +851,9 @@ document.addEventListener('DOMContentLoaded', () => {
           ${v.fetal_heart_rate ? `<span style="display:block; font-size:0.75rem; color:#e11d48;">نبض: ${v.fetal_heart_rate} bpm</span>` : ''}
         </td>
         <td>
-          <strong style="color: #0f766e;">${escapeHtml(v.diagnosis)}</strong>
-          ${v.ultrasound_findings ? `<p style="font-size:0.75rem; color:#64748b; margin:2px 0 0 0;">سونار: ${escapeHtml(v.ultrasound_findings)}</p>` : ''}
+          <strong class="reception-only-blur" style="color: #0f766e;">${escapeHtml(v.diagnosis)}</strong>
+          ${v.ultrasound_findings ? `<p class="reception-only-blur" style="font-size:0.75rem; color:#64748b; margin:2px 0 0 0;">سونار: ${escapeHtml(v.ultrasound_findings)}</p>` : ''}
+          ${v.attachments_count > 0 ? `<span class="badge badge-booked mt-1" style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem;"><i class="fa-solid fa-camera"></i> ${v.attachments_count} مرفق</span>` : ''}
         </td>
         <td>
           ${v.prescriptions_count > 0 
@@ -849,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <small style="display:block; color:#64748b;">${escapeHtml(pr.patient_code || '')}</small>
         </td>
         <td>${pr.patient_age ? pr.patient_age + ' سنة' : '--'}</td>
-        <td>${escapeHtml(pr.diagnosis_summary || 'متابعة نساء وتوليد')}</td>
+        <td><span class="reception-only-blur">${escapeHtml(pr.diagnosis_summary || 'متابعة نساء وتوليد')}</span></td>
         <td><span class="badge badge-booked">${pr.items_count || (pr.items ? pr.items.length : 0)} أدوية</span></td>
         <td>
           <div class="action-btns">
@@ -892,6 +973,105 @@ document.addEventListener('DOMContentLoaded', () => {
     `).join('');
   }
 
+
+  // --------------------------------------------------------------------------
+  // Smart Prescription Safety Check Engine (Allergy & Drug Interactions)
+  // --------------------------------------------------------------------------
+  function checkPrescriptionSafety() {
+    const container = document.getElementById('rxAlertsContainer');
+    if (!container) return;
+
+    const patientId = document.getElementById('rxPatientSelect')?.value;
+    const patient = state.patients.find(p => String(p.id) === String(patientId));
+    
+    // Gather all med names currently in rows
+    const medInputs = document.querySelectorAll('.rx-med-name-input');
+    const medNames = Array.from(medInputs).map(input => input.value.trim().toLowerCase()).filter(Boolean);
+
+    const alerts = [];
+
+    // 1. Patient Allergy Check
+    if (patient && patient.allergies && !patient.allergies.includes('لا توجد') && !patient.allergies.includes('لا يوجد')) {
+      const ptAllergyLower = patient.allergies.toLowerCase();
+      
+      // Check Penicillin family
+      const isPenicillinAllergic = ptAllergyLower.includes('بنسلين') || 
+                                   ptAllergyLower.includes('penicillin') || 
+                                   ptAllergyLower.includes('amox') || 
+                                   ptAllergyLower.includes('augmentin');
+                                   
+      if (isPenicillinAllergic) {
+        const penKeywords = ['penicillin', 'amoxicillin', 'augmentin', 'curam', 'amoxil', 'klavox', 'megamox', 'unasyn', 'ampicillin', 'بنسلين', 'أوجمنتين', 'اوجمنتين', 'اموكسيسيلين', 'كيورام', 'يوناسين'];
+        const offendingDrugs = medNames.filter(name => penKeywords.some(kw => name.includes(kw)));
+        if (offendingDrugs.length > 0) {
+          alerts.push({
+            type: 'danger',
+            icon: 'fa-shield-virus',
+            title: 'تحذير حساسية دوائية خطير (Drug Allergy Alert)',
+            message: 'المريضة لديها حساسية مسجلة من (<strong>' + escapeHtml(patient.allergies) + '</strong>). الدواء المضاف [<strong>' + escapeHtml(offendingDrugs.join('، ')) + '</strong>] ينتمي لمجموعة البنسلين، وقد يعرض المريضة لصدمة حساسية حادة مهددة للحياة.'
+          });
+        }
+      }
+
+      // Check NSAIDs / Aspirin allergy
+      const isNsaidAllergic = ptAllergyLower.includes('اسبرين') || 
+                              ptAllergyLower.includes('aspirin') || 
+                              ptAllergyLower.includes('بروفين') || 
+                              ptAllergyLower.includes('nsaid');
+      if (isNsaidAllergic) {
+        const nsaidKeywords = ['aspirin', 'brufen', 'ibuprofen', 'voltaren', 'cataflam', 'ketofan', 'ketolac', 'أسبرين', 'اسبرين', 'بروفين', 'فولتارين', 'كتافلام', 'كيتوفان'];
+        const offendingDrugs = medNames.filter(name => nsaidKeywords.some(kw => name.includes(kw)));
+        if (offendingDrugs.length > 0) {
+          alerts.push({
+            type: 'danger',
+            icon: 'fa-triangle-exclamation',
+            title: 'تحذير حساسية دوائية (NSAIDs Allergy Alert)',
+            message: 'المريضة مسجل لديها حساسية من الأسبرين ومسكنات NSAIDs (<strong>' + escapeHtml(patient.allergies) + '</strong>). يرجى مراجعة الدواء [<strong>' + escapeHtml(offendingDrugs.join('، ')) + '</strong>].'
+          });
+        }
+      }
+    }
+
+    // 2. Drug-Drug Interaction Check: Iron + Calcium
+    const ironKeywords = ['iron', 'feroglobin', 'ferose', 'ferrum', 'fefol', 'innofer', 'vitiron', 'hemamax', 'ferrous', 'حديد', 'فيروجلوبين', 'فيروز', 'فيروم', 'هيماماكس'];
+    const calciumKeywords = ['calcium', 'caltrate', 'calcimate', 'osteocare', 'calci-max', 'cal-mag', 'كالسيوم', 'كالتريت', 'كالسيماكس', 'أوستيوكير', 'اوستيوكير'];
+
+    const hasIron = medNames.some(name => ironKeywords.some(kw => name.includes(kw)));
+    const hasCalcium = medNames.some(name => calciumKeywords.some(kw => name.includes(kw)));
+
+    if (hasIron && hasCalcium) {
+      alerts.push({
+        type: 'warning',
+        icon: 'fa-triangle-exclamation',
+        title: 'تنبيه تداخل دوائي: الكالسيوم يقلل امتصاص الحديد (Drug Interaction)',
+        message: 'تحتوي الروشتة على مستحضر <strong>حديد</strong> مع مستحضر <strong>كالسيوم</strong>. أملاح الكالسيوم ترتبط بالحديد وتقلل امتصاصه الهضمي بنسبة تتجاوز 50%. <strong>توجيه إكلينيكي:</strong> يرجى التنبيه على المريضة بالفصل بين موعد تناول الحديد وموعد تناول الكالسيوم بساعتين على الأقل.'
+      });
+    }
+
+    // Render Alerts
+    if (alerts.length === 0) {
+      container.classList.add('d-none');
+      container.innerHTML = '';
+    } else {
+      container.classList.remove('d-none');
+      container.innerHTML = alerts.map(a => `
+        <div class="rx-alert-box ${a.type === 'danger' ? 'rx-alert-danger' : 'rx-alert-warning'}">
+          <div class="rx-alert-content">
+            <i class="fa-solid ${a.icon}"></i>
+            <div>
+              <strong>${a.title}</strong>
+              <p class="mb-0" style="font-size: 0.85rem; margin-top: 3px;">${a.message}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.triggerRxSafetyCheck = () => {
+    setTimeout(checkPrescriptionSafety, 50);
+  };
+
   function setupPrescriptionBuilder() {
     if (btnAddRxItemRow) {
       btnAddRxItemRow.addEventListener('click', () => {
@@ -902,6 +1082,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnPrintActual) {
       btnPrintActual.addEventListener('click', () => {
         window.print();
+      });
+    }
+
+    const rxPatientSelect = document.getElementById('rxPatientSelect');
+    if (rxPatientSelect) {
+      rxPatientSelect.addEventListener('change', () => {
+        checkPrescriptionSafety();
+      });
+    }
+
+    if (rxItemsContainer) {
+      rxItemsContainer.addEventListener('input', () => {
+        checkPrescriptionSafety();
+      });
+      rxItemsContainer.addEventListener('change', () => {
+        checkPrescriptionSafety();
       });
     }
   }
@@ -937,12 +1133,13 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="col-act form-group mb-0">
         <label>&nbsp;</label>
-        <button type="button" class="btn-icon delete w-100" title="حذف الدواء" onclick="this.closest('.rx-item-row').remove()">
+        <button type="button" class="btn-icon delete w-100" title="حذف الدواء" onclick="this.closest('.rx-item-row').remove(); window.triggerRxSafetyCheck();">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
     `;
     rxItemsContainer.appendChild(row);
+    checkPrescriptionSafety();
   }
 
   // Window helper to add drug from catalog pills
@@ -957,6 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addDrugFromPreset = (drug) => {
     if (!drug) return;
     addRxItemRow(drug);
+    checkPrescriptionSafety();
     showToast(`تمت إضافة ${drug.name} إلى الروشتة`);
   };
 
@@ -1197,6 +1395,46 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    let currentVisitAttachments = [];
+
+
+    // Attachments Handling (Ultrasound & Lab)
+    const btnTriggerAddAttachment = document.getElementById('btnTriggerAddAttachment');
+    const inputVisitAttachmentFile = document.getElementById('inputVisitAttachmentFile');
+    const selectVisitAttachmentType = document.getElementById('selectVisitAttachmentType');
+
+    if (btnTriggerAddAttachment && inputVisitAttachmentFile) {
+      btnTriggerAddAttachment.addEventListener('click', () => {
+        inputVisitAttachmentFile.click();
+      });
+
+      inputVisitAttachmentFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (file.size > 8 * 1024 * 1024) {
+          showToast('حجم الملف كبير جداً (الحد الأقصى 8 ميجابايت)', 'error');
+          e.target.value = '';
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const base64Data = evt.target.result;
+          const attType = selectVisitAttachmentType?.value || 'سونار';
+          const gaWeeks = document.getElementById('visitGaWeeks')?.value;
+          const title = attType + (gaWeeks ? ' (أسبوع ' + gaWeeks + ')' : '');
+          currentVisitAttachments.push({
+            attachment_type: attType,
+            title: title,
+            file_data: base64Data
+          });
+          renderVisitAttachmentsPreviews();
+          e.target.value = '';
+          showToast('تم إرفاق الملف بنجاح');
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     if (formVisit) {
       formVisit.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1233,7 +1471,8 @@ document.addEventListener('DOMContentLoaded', () => {
           normal_delivery_count: parseInt(document.getElementById('visitNormalDeliv')?.value || 0, 10),
           is_pregnant: Boolean(document.getElementById('visitIsPregnant')?.checked),
           lmp: document.getElementById('visitLmp')?.value || null,
-          edd: document.getElementById('visitEdd')?.value || null
+          edd: document.getElementById('visitEdd')?.value || null,
+          attachments: currentVisitAttachments
         };
 
         try {
@@ -1250,6 +1489,8 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModal(modalVisit);
             formVisit.reset();
             resetVisitClinicalFields();
+            currentVisitAttachments = [];
+            renderVisitAttachmentsPreviews();
             const formIdInput = document.getElementById('visitFormId');
             if (formIdInput) formIdInput.value = '';
             showToast(visitFormId ? 'تم تحديث بيانات الكشف وسجل المريضة بنجاح' : 'تم حفظ الكشف والتشخيص وسجل المريضة بنجاح');
@@ -1929,9 +2170,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eddInput) eddInput.value = '';
   }
 
+
+  function renderVisitAttachmentsPreviews() {
+    const container = document.getElementById('visitAttachmentsContainer');
+    if (!container) return;
+    if (currentVisitAttachments.length === 0) {
+      container.innerHTML = '<span class="text-slate-400" style="font-size: 0.85rem; padding: 6px 0; grid-column: 1 / -1;">لا توجد صور سونار أو تحاليل مرفقة حتى الآن. انقر على "رفع صورة / ملف" للإضافة.</span>';
+      return;
+    }
+    container.innerHTML = currentVisitAttachments.map((att, idx) => `
+      <div class="attachment-preview-card">
+        <img src="${att.file_data}" class="attachment-thumb-img" alt="${escapeHtml(att.title || att.attachment_type || 'مرفق')}" onclick="window.openLightbox('${att.file_data}', '${escapeHtml(att.title || att.attachment_type || 'مرفق')}')">
+        <button type="button" class="btn-remove-attachment" onclick="window.removeVisitAttachment(${idx})" title="حذف المرفق">&times;</button>
+        <span class="attachment-type-badge">${escapeHtml(att.attachment_type || 'سونار')}</span>
+      </div>
+    `).join('');
+  }
+
+  window.removeVisitAttachment = (idx) => {
+    currentVisitAttachments.splice(idx, 1);
+    renderVisitAttachmentsPreviews();
+  };
+
   window.openNewVisitModal = () => {
     formVisit.reset();
     resetVisitClinicalFields();
+    currentVisitAttachments = [];
+    renderVisitAttachmentsPreviews();
     const visitFormId = document.getElementById('visitFormId');
     if (visitFormId) visitFormId.value = '';
     const modalTitle = document.getElementById('modalVisitTitle');
@@ -1953,6 +2218,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const v = json.data;
 
       formVisit.reset();
+      currentVisitAttachments = v.attachments && Array.isArray(v.attachments) ? [...v.attachments] : [];
+      renderVisitAttachmentsPreviews();
       const visitFormId = document.getElementById('visitFormId');
       if (visitFormId) visitFormId.value = v.id;
       const modalTitle = document.getElementById('modalVisitTitle');
@@ -2044,6 +2311,7 @@ document.addEventListener('DOMContentLoaded', () => {
       populateVisitPatientClinicalData(patientId);
     }
     if (sel) sel.value = patientId;
+    checkPrescriptionSafety();
     document.getElementById('visitAppointmentId').value = appointmentId;
 
     // Update appointment status to 'جاري الكشف'
@@ -2069,6 +2337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('rxVisitId').value = '';
     rxItemsContainer.innerHTML = '';
     addRxItemRow();
+    checkPrescriptionSafety();
     openModal(modalPrescription);
   };
 
@@ -2108,6 +2377,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addRxItemRow();
       }
 
+      checkPrescriptionSafety();
       openModal(modalPrescription);
     } catch (err) {
       alert('تعذر فتح الروشتة للتعديل');
@@ -2149,6 +2419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sel && resolvedPatientId) sel.value = resolvedPatientId;
     const diagInput = document.getElementById('rxDiagnosisSummary');
     if (diagInput && resolvedDiagnosis) diagInput.value = resolvedDiagnosis;
+    checkPrescriptionSafety();
   };
 
   window.viewVisitDetails = (visitId) => {
@@ -2365,7 +2636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <th>الضغط / الوزن</th>
                 <th>عمر الحمل / النبض</th>
                 <th>التشخيص الطبي</th>
-                <th>السونار</th>
+                <th>السونار والمرفقات</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
@@ -2377,8 +2648,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${escapeHtml(v.visit_type)}</td>
                     <td>${v.blood_pressure || '--'} / ${v.weight_kg ? v.weight_kg + ' كجم' : '--'}</td>
                     <td>${v.gestational_age_weeks ? v.gestational_age_weeks + ' أسبوع' : '--'} ${v.fetal_heart_rate ? `(${v.fetal_heart_rate} bpm)` : ''}</td>
-                    <td><strong style="color: #0f766e;">${escapeHtml(v.diagnosis)}</strong></td>
-                    <td><small>${escapeHtml(v.ultrasound_findings || '--')}</small></td>
+                    <td><strong class="reception-only-blur" style="color: #0f766e;">${escapeHtml(v.diagnosis)}</strong></td>
+                    <td>
+                      <small class="reception-only-blur">${escapeHtml(v.ultrasound_findings || '--')}</small>
+                      ${(v.attachments && v.attachments.length > 0) ? `
+                        <div class="mt-1 d-flex gap-1 flex-wrap">
+                          ${v.attachments.map(a => `
+                            <span class="badge badge-booked" style="cursor: pointer; font-size: 0.72rem; padding: 2px 6px;" onclick="window.openLightbox('${a.file_data}', '${escapeHtml(a.title || a.attachment_type)}')">
+                              <i class="fa-solid fa-camera"></i> ${escapeHtml(a.attachment_type)}
+                            </span>
+                          `).join('')}
+                        </div>
+                      ` : ''}
+                    </td>
                     <td>
                       <div class="action-btns">
                         <button class="btn-icon edit" onclick="window.closePatientProfileModal(); window.editVisit(${v.id})" title="تعديل الكشف">
@@ -2394,6 +2676,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </tbody>
           </table>
         </div>
+
+        <h4 class="form-section-title mt-4">
+          <i class="fa-solid fa-camera text-primary"></i> معرض السونار والتحاليل الطبية بالتطور الزمني (${(p.attachments || []).length})
+        </h4>
+        ${(p.attachments || []).length === 0 ? `
+          <div class="p-3 text-slate-400 text-center" style="background: var(--slate-50); border-radius: 8px; font-size: 0.9rem;">
+            <i class="fa-regular fa-image mb-1" style="font-size: 20px; display: block;"></i>
+            لا توجد صور سونار أو تحاليل طبية مرفقة في سجل هذه المريضة حتى الآن.
+          </div>
+        ` : `
+          <div class="profile-sonar-gallery">
+            ${(p.attachments || []).map(att => `
+              <div class="sonar-gallery-item" onclick="window.openLightbox('${att.file_data}', '${escapeHtml(att.title || att.attachment_type)}')">
+                <img src="${att.file_data}" alt="${escapeHtml(att.title || 'سونار')}">
+                <div class="sonar-gallery-overlay">
+                  <span class="sonar-ga-tag">${escapeHtml(att.attachment_type || 'سونار')}</span>
+                  <p class="sonar-gallery-title">${escapeHtml(att.title || '')}</p>
+                  <small class="sonar-gallery-date">${formatDate(att.created_at)}</small>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
 
         <h4 class="form-section-title mt-4">
           <i class="fa-solid fa-prescription text-emerald"></i> الروشتات الصادرة للمريضة (${(p.prescriptions || []).length})

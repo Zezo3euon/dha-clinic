@@ -1778,3 +1778,344 @@ textarea.form-control {
 .backup-meta-list li i {
   color: var(--emerald-500);
 }
+
+/* ==========================================================================
+   WhatsApp 1-Click Messaging
+   ========================================================================== */
+.btn-whatsapp {
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: var(--font-ar);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-whatsapp:hover {
+  background: #1eb855;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);
+}
+
+.btn-whatsapp-icon {
+  background: #25D366;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-whatsapp-icon:hover {
+  background: #1eb855;
+  transform: scale(1.08);
+  box-shadow: 0 3px 8px rgba(37, 211, 102, 0.35);
+}
+
+/* ==========================================================================
+   Ultrasound & Lab Attachments
+   ========================================================================== */
+.visit-attachments-section {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.attachments-upload-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.attachments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.attachment-preview-card {
+  position: relative;
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.attachment-preview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.attachment-thumb-img {
+  width: 100%;
+  height: 95px;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+
+.attachment-meta-strip {
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.attachment-type-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.attachment-type-badge.sonar {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.attachment-type-badge.lab {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.attachment-type-badge.other {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.btn-remove-attachment {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(225, 29, 72, 0.9);
+  color: white;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  transition: var(--transition);
+}
+
+.btn-remove-attachment:hover {
+  background: #be123c;
+  transform: scale(1.1);
+}
+
+/* Timeline Gallery in Patient Profile */
+.profile-sonar-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.sonar-gallery-item {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--slate-200);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.sonar-gallery-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+.sonar-gallery-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+
+.sonar-gallery-caption {
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
+.sonar-ga-tag {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* Lightbox Modal */
+.lightbox-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 70vh;
+  display: block;
+  object-fit: contain;
+}
+
+.lightbox-header {
+  padding: 12px 16px;
+  background: var(--slate-900);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lightbox-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Prescription Drug Allergy & Interaction Alerts
+   ========================================================================== */
+.rx-alerts-container {
+  margin-bottom: 16px;
+}
+
+.rx-alert-box {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: fadeInDown 0.3s ease;
+}
+
+.rx-alert-danger {
+  background: #ffe4e6;
+  border: 1px solid #fda4af;
+  color: #9f1239;
+}
+
+.rx-alert-warning {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.rx-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.rx-alert-content i {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.badge-patient-allergy-header {
+  background: #ffe4e6;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ==========================================================================
+   Receptionist Privacy Mode
+   ========================================================================== */
+.btn-toggle-privacy {
+  background: white;
+  border: 1px solid var(--slate-200);
+  color: var(--slate-700);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: var(--font-ar);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.btn-toggle-privacy:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+body.receptionist-mode .hide-in-reception {
+  display: none !important;
+}
+
+body.receptionist-mode .reception-only-blur {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+body.receptionist-mode .btn-toggle-privacy {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fde68a;
+}
