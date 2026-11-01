@@ -1983,6 +1983,7 @@ textarea.form-control {
   inset: 0;
   z-index: 10000;
   background: rgba(15, 23, 42, 0.85);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
