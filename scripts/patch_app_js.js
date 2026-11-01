@@ -578,3 +578,4 @@ if (code.includes(oldProfileVisitsTable)) {
 
 fs.writeFileSync(appJsPath, code, 'utf8');
 console.log('app.js updated successfully!');
+
