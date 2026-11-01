@@ -2,19 +2,20 @@
 # عيادة الدكتور حاتم عواجة - إعدادات Apache لموقع InfinityFree
 # ============================================================================
 
-Options -Indexes
 DirectoryIndex index.html
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
 
-    # 1. API Router: توجيه كافة طلبات الـ API إلى api/index.php
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # استثناء الملفات والمجلدات الحقيقية (CSS, JS, Fonts, Images) لتصل للمتصفح مباشرة
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # توجيه طلبات الـ API إلى api/index.php
     RewriteRule ^api/(.*)$ api/index.php?endpoint=$1 [QSA,L]
 
-    # 2. توجيه الروابط النظيفة إلى صفحات HTML المستقلة
+    # توجيه الروابط النظيفة إلى صفحات HTML
     RewriteRule ^dashboard/?$ index.html [L]
     RewriteRule ^patients/?$ patients.html [L]
     RewriteRule ^appointments/?$ appointments.html [L]
@@ -24,11 +25,5 @@ DirectoryIndex index.html
     RewriteRule ^backups/?$ backups.html [L]
 </IfModule>
 
-# حماية ملفات الإعدادات الحساسة
-<Files "config.php">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# تعيين الترميز الافتراضي ليكون دائماً UTF-8 للعربية
+# تعيين الترميز ليكون دائماً UTF-8 للعربية
 AddDefaultCharset UTF-8
