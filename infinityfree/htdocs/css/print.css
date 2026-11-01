@@ -1,0 +1,399 @@
+/* ============================================================================
+   عيادة الدكتور حاتم عواجة - استشاري النساء والتوليد
+   Official Medical Prescription Print Stylesheet (A5 / A4 Optimized)
+   ============================================================================ */
+
+/* Screen Styling for Prescription Preview Modal */
+.rx-print-paper {
+  background: #ffffff;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 36px 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  color: #1e293b;
+  position: relative;
+  direction: rtl;
+  min-height: 850px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.rx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  gap: 16px;
+  width: 100%;
+}
+
+.rx-doc-info {
+  flex: 1.2;
+  text-align: right;
+  min-width: 0;
+}
+
+.rx-doc-name {
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #0f766e;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.rx-doc-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 2px 0;
+  line-height: 1.3;
+}
+
+.rx-doc-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+.rx-logo-box {
+  flex: 0 0 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rx-logo-symbol {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d9488 0%, #042f2e 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+}
+
+.rx-clinic-tag {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0d9488;
+  letter-spacing: 1.5px;
+  margin-top: 4px;
+}
+
+.rx-doc-info-en {
+  flex: 1.2;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
+  min-width: 0;
+}
+
+.rx-doc-name-en {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f766e;
+  margin: 0 0 3px 0;
+  white-space: nowrap;
+}
+
+.rx-doc-title-en {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.rx-doc-sub-en {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.rx-header-divider {
+  height: 4px;
+  background: linear-gradient(90deg, #0d9488 0%, #e11d48 50%, #0d9488 100%);
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+
+/* Patient Strip */
+.rx-patient-strip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rx-clinical-substrip {
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  border-radius: 8px;
+  padding: 8px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.strip-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.strip-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.strip-value {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.strip-value-accent {
+  color: #0f766e;
+  font-weight: 700;
+}
+
+/* Rx Body & Watermark */
+.rx-body {
+  position: relative;
+  flex: 1;
+  padding: 10px 0 20px 0;
+}
+
+.rx-symbol {
+  font-size: 5rem;
+  font-weight: 900;
+  font-family: serif;
+  color: rgba(13, 148, 136, 0.12);
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.rx-medications-list {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rx-med-item {
+  background: #ffffff;
+  border-bottom: 1px dashed #cbd5e1;
+  padding-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.rx-med-num {
+  width: 28px;
+  height: 28px;
+  background: #0d9488;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.rx-med-details {
+  flex: 1;
+}
+
+.rx-med-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.rx-med-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.rx-med-dosage {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0d9488;
+  background: #ccfbf1;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.rx-med-instruction {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rx-med-instruction i {
+  color: #e11d48;
+  font-size: 0.85rem;
+}
+
+/* Instructions / Advice Box */
+.rx-instructions-box {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 16px 0;
+}
+
+.instructions-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #be123c;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rx-instructions-box p {
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Footer & Doctor Signature */
+.rx-footer {
+  border-top: 2px solid #e2e8f0;
+  padding-top: 14px;
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.rx-clinic-contacts {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.rx-signature-block {
+  text-align: center;
+  min-width: 160px;
+}
+
+.sign-line {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.rx-signature-block strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #0f766e;
+  border-top: 1px solid #cbd5e1;
+  padding-top: 4px;
+}
+
+/* ============================================================================
+   PURE PRINT MEDIA QUERY (Physical Printer / PDF Save)
+   ============================================================================ */
+@media print {
+  /* Hide all non-printable UI */
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: black !important;
+  }
+
+  .app-sidebar,
+  .app-topbar,
+  .quick-actions,
+  .btn,
+  .modal-close,
+  .modal-header,
+  .modal-footer,
+  .toast-container,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset layout for full page print */
+  .app-layout,
+  .app-main,
+  .content-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  /* Hide all modal overlays EXCEPT the prescription print modal */
+  .modal-overlay:not(#modalPrintRx) {
+    display: none !important;
+  }
+
+  #modalPrintRx {
+    position: static !important;
+    background: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .modal-box {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    transform: none !important;
+    padding: 0 !important;
+  }
+
+  .rx-print-paper {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 10mm 12mm !important;
+    min-height: 0 !important;
+  }
+
+  @page {
+    size: A5 portrait;
+    margin: 8mm;
+  }
+}
